@@ -1,11 +1,14 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, ParseIntPipe, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response} from "express";
+import { LoginUserDto } from './dto/login-user.dto';
+import { SignUpUserDto } from './dto/signup-user.dto';
+
 
 @Controller('auth')
 export class AuthController {
 
-    /* learning phase */
+    /* l-p */
     /*
     constructor( private readonly authService:AuthService){
     }
@@ -23,6 +26,28 @@ export class AuthController {
     }
 
     */
+
+    
+    constructor(
+        private readonly authService:AuthService
+    ){}
+
+    @Post("/sign-up")
+    public createNewUser(@Body() body:SignUpUserDto){
+
+        return this.authService.signup(body);
+    }
+
+
+    @Post("/login")
+    public loginUser(@Body() body:LoginUserDto ){
+        return this.authService.login( body);
+    }
+
+    @Post("/sign-out")
+    public logoutUser(@Body("userId", ParseIntPipe) userId:string ){
+        return this.authService.logout(userId);
+    }
    
 
 }

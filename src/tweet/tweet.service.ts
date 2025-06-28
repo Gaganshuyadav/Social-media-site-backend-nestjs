@@ -10,7 +10,7 @@ import { HashtagEntity } from 'src/hashtag/hashtag.entity';
 import { UpdateTweetDto } from './dto/update-tweet-dto';
 import { PaginationProvider } from 'src/common-for-all/pagination/pagination.provider';
 
-/* learning phase */
+/* l-p */
 /*
 type Tweet = {
     text:string,
@@ -30,7 +30,7 @@ type ExcludeIdFromTweet = Omit<Tweet, 'userId'>;
 @Injectable()
 export class TweetService {
 
-    /* learning phase */
+    /* l-p */
     /*
 
     constructor( private usersService:UsersService){
@@ -235,82 +235,8 @@ export class TweetService {
         );
 
     }
+    
 
 
     
 }
-
-
-/*public async paginationTweets( limitQ:number, pageQ:number, userId:number){
-
-        if(!userId){
-            throw new NotFoundException(`userId is not provided`);
-        }
-
-        //check if user exist
-        const findUser = await this.userService.findUserById(userId);
-
-        if(!findUser){
-            throw new NotFoundException(`User with userId ${userId} is not found`);
-        }
-
-        const limit = limitQ ?? 10;  
-        const page = pageQ ?? 1;
-
-        if( page<1){
-            throw new BadRequestException("Page number should not be less than 1");
-        }
-
-        const skipPage = limit*(page-1);
-
-        const where = {
-            where: { 
-                user: {
-                    id: userId
-                }
-            },
-            relations: {
-                user: true,
-                hashtags: true
-            },
-            skip: skipPage, 
-            take: limit
-        };
-
-        const pagedTweets = await this.paginationProvider.Pagination( { limit, page}, this.tweetRepository, where);
-
-        const itemPerPage = limit;
-        const totalItems = await this.tweetRepository.count();        
-        const currentPage = page;
-        const totalPages = Math.ceil( (totalItems/itemPerPage) );
-
-
-        if( totalPages < page){
-            throw new BadRequestException("Page number should not be greater than total pages");
-        }
-
-        return {
-            data: pagedTweets,
-            meta: {
-              itemPerPage,
-              totalItems,
-              currentPage,
-              totalPages 
-            },
-            links: {
-              first: `http://localhost:3000/tweets/filter/pagination?limit=${itemPerPage}&page=1`,
-              last: `http://localhost:3000/tweets/filter/pagination?limit=${itemPerPage}&page=${totalPages}`,
-              current: `http://localhost:3000/tweets/filter/pagination?limit=${itemPerPage}&page=${currentPage}`,
-              next: ( currentPage+1>totalPages ? null : `http://localhost:3000/tweets/filter/pagination?limit=${itemPerPage}&page=${currentPage+1}`),
-              previous: ( currentPage===1 ? null : `http://localhost:3000/tweets/filter/pagination?limit=${itemPerPage}&page=${currentPage-1}`)
-  }
-}
-
-    }
-
-
-    
-}
-
-
- */

@@ -9,7 +9,6 @@ export class PaginationProvider<T extends ObjectLiteral> {
 
     constructor(
         @Inject(REQUEST) private readonly request:Request
-        // @Inject(REQUEST) private readonly request:Res
     ){}
 
     public async Pagination(

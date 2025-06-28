@@ -4,13 +4,14 @@ import { CreateUserDto } from "./dtos/create-user.dto";
 import { GetWithIsMarriedParamDto } from "./dtos/get-with-isMarried-param.dto";
 import { UpdateUserDTO } from "./dtos/update-user.dto";
 import { Response} from "express";
+import { PaginationQueryDto } from "src/tweet/dto/filter-pagination-tweet-dto";
 
 @Controller("users")
 export class UsersController{
     constructor(private readonly usersService:UsersService){
     }
 
-    /* learning phase */
+    /* l-p */
 
         /*(i). Basics */
         /*
@@ -139,10 +140,6 @@ export class UsersController{
         return this.usersService.getAllUsers();
     }
 
-    @Post("/create")
-    public createNewUser(@Body() body:CreateUserDto){
-        return this.usersService.createUser(body);
-    }
 
     @Delete("/:id")
     public deleteUserById( @Param("id") id:string){
@@ -154,6 +151,12 @@ export class UsersController{
     public exceptionHandlingFiltersPractice(){
 
         return this.usersService.exceptionHandlingFiltersPractice();
+    }
+
+    @Get(`/filter/pagination/:id`)
+    public paginationTweets( @Query() param:PaginationQueryDto, @Param("id", ParseIntPipe) userId:number, @Query("limit", ParseIntPipe) limit:number, @Query("page", ParseIntPipe) page:number){
+        
+        return this.usersService.paginationUsers( limit, page, userId);
     }
 
     

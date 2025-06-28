@@ -8,7 +8,7 @@ import { PaginationQueryDto, PaginationQueryWithBaseAndDate } from './dto/filter
 @Controller('tweets')
 export class TweetController {
 
-    /* learning phase */
+    /* l-p */
     /*
     constructor(private tweetService:TweetService){
 

@@ -1,11 +1,16 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Response} from "express";
 import { UsersService } from '../users/users.service';
+import { LoginUserDto } from './dto/login-user.dto';
+import { BcryptProvider } from 'src/provider/bcrypt.provider';
+import { SignUpUserDto } from './dto/signup-user.dto';
 
 @Injectable()
 export class AuthService {
 
-    /* learning phase */
+    
+
+    /* l-p */
     
     /*
 
@@ -46,5 +51,67 @@ export class AuthService {
     }
 
     */
+
+    constructor(
+        @Inject(forwardRef(()=>UsersService)) private readonly userService:UsersService,
+        @Inject() private readonly bcryptProvider:BcryptProvider
+    ){}
+
+
+    public async signup( signUpData:SignUpUserDto){
+
+        // create new  user
+        const createNewUser = await this.userService.createUser( signUpData);
+ 
+        return {
+            message: "User Created Successfully",
+            user: createNewUser
+        }
+
+    }
+
+    public async login( loginData:LoginUserDto){
+
+        const findUser = await this.userService.findUserByEmail(loginData.email, { password:true, tweet:true, profile:true} );
+        
+        if(!findUser) throw new NotFoundException("User Not Found");
+        
+        
+        const isAuth = await this.bcryptProvider.comparePassword( loginData.password, findUser.password);
+
+
+        if(!isAuth){ 
+            throw new HttpException({
+                status: HttpStatus.UNAUTHORIZED,
+                error: "Invalid email or password"
+            },
+            HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        return {
+            message: "User Login Successfully",
+            user: findUser
+        }
+
+    }
+
+    public async logout( userId:string|number){
+
+        // find user
+        const findUser = await this.userService.findUserById( userId );
+
+        if(!findUser) throw new NotFoundException("User Not Found");
+        
+        return {
+            message: "User Logout Successfully"
+        }
+
+    }
+
+
+
+
+
 
 }

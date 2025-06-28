@@ -10,6 +10,10 @@ import { ProfileEntity } from 'src/profile/profile.entity';
 import { ConfigService } from "@nestjs/config";
 import { appConfig } from 'src/config/app.config';
 import { UserAlreadyExistsException } from 'src/CustomExceptions/user-already-exists.exception';
+import { PaginationProvider } from 'src/common-for-all/pagination/pagination.provider';
+import { BcryptProvider } from 'src/provider/bcrypt.provider';
+import { SignUpUserDto } from 'src/auth/dto/signup-user.dto';
+import { profile } from 'console';
 
 export interface UserE {
     id: string
@@ -20,7 +24,7 @@ export interface UserE {
 @Injectable()
 export class UsersService {
 
-    /* learning phase */
+    /* l-p */
     /*
 
     public users:Array<UserE> = [ 
@@ -78,10 +82,13 @@ export class UsersService {
 
     */
 
-    constructor(
+    constructor( 
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
         @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
-        @Inject() private readonly configService: ConfigService
+        @Inject() private readonly configService: ConfigService,
+        @Inject( forwardRef(()=>AuthService)) private readonly authService:AuthService,
+        @Inject() private readonly paginationProvider:PaginationProvider<UserEntity>,
+        @Inject() private readonly bcryptProvider:BcryptProvider
     ) { }
 
     public async getAllUsers() {
@@ -106,6 +113,7 @@ export class UsersService {
 
     public async createUser(userBody: CreateUserDto) {
 
+        
         //check if email exist already
         const findUser = await this.userRepository.findOne({
             where: {
@@ -115,12 +123,15 @@ export class UsersService {
 
         if (findUser) {
             throw new NotFoundException("User Already Exist");
-        }
+        } 
 
         // ( using cascade):- add profile if not exist, and due to cascade property added the new id of profile is created , and if profile exist and their is properties in profile then that will be added in db
+            userBody.profile = userBody.profile ?? {};
+        
 
-        userBody.profile = userBody.profile ?? {};
-        // userBody.profile.userId = userBody
+
+        // convert a password into hashed form
+        userBody.password = await this.bcryptProvider.hashPassword(userBody.password);
 
         // create new user
         const user = this.userRepository.create(userBody);
@@ -130,7 +141,10 @@ export class UsersService {
         // ( we can also do manually by create profile first and then save and then give profile to body of user and then save the new user, but cascade is easier way it automatically creates the profile and object is empty)
 
 
+
         return user;
+
+        
 
     }
 
@@ -168,10 +182,122 @@ export class UsersService {
     }
 
 
-    public async findUserById(id: number) {
+
+    public async findUserById(id: number|string) {
         return this.userRepository.findOneBy({ id: Number(id) });
     }
 
+    public async paginationUsers( limitQ:number, pageQ:number, userId:number){
+
+        if(!userId){
+            throw new NotFoundException(`userId is not provided`);
+        }
+
+        //check if user exist
+        const findUser = await this.findUserById(userId);
+
+        if(!findUser){
+            throw new NotFoundException(`User with userId ${userId} is not found`);
+        }
+
+        const whereOption = {
+                id: userId
+        }
+
+        const relationOption = {
+            profile: true,
+            tweet: true
+        }
+
+
+        return this.paginationProvider.Pagination( 
+            { limit: limitQ, page: pageQ}, 
+            this.userRepository, 
+            {
+                where: whereOption,
+                relations: relationOption,
+            }
+        );
+
+    }
+
+    public async findUserByEmail( email:string, { password=false, profile=false, tweet=false }:{ password?:boolean, profile?:boolean, tweet?:boolean} ){
+
+        try{
+
+            const findUser = await this.userRepository.findOne({
+                where: {
+                    email
+                },
+                select:{
+                    password,
+                    id:true,
+                    username:true,
+                    email:true,
+                    createdAt:true,
+                    updatedAt:true,
+                    deletedAt: true
+    
+                },
+                relations:{
+                    tweet,
+                    profile
+                }
+            });
+
+            return findUser;
+
+        }
+        catch(err){
+
+            if (err.code === "ECONNREFUSED") {
+
+                throw new RequestTimeoutException({
+                    error: err.errors[0],
+                    message: "Request Timeout",
+                    description: "Could not connect to the database"
+                })
+
+            }
+            else if( err.code === "23505" ) {
+                
+                throw new BadRequestException({
+                    error: "Duplicate User",
+                    message: "try to create duplicate user in the database"
+                })
+            }
+            else if( err.status===400){
+                throw err;
+            }
+            else {
+                throw new RequestTimeoutException("Something went wrong");
+            }
+
+        }
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* l-p */
     public async exceptionHandlingFiltersPractice() {
 
         /*(i). not found exception */
