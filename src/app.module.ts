@@ -13,6 +13,9 @@ import { appConfig } from './config/app.config';
 import { PaginationModule } from './common-for-all/pagination/pagination.module';
 import databaseConfig from './config/database.config';
 import envValidation from './config/env.validation';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthorizeGuard } from './auth/guards/authorize.guard';
+import authConfig from './auth/config/auth.config';
 
 const N_ENV = process.env.NODE_ENV;
 
@@ -26,6 +29,7 @@ const N_ENV = process.env.NODE_ENV;
     ProfileModule,
     HashtagModule,
     PaginationModule,
+    ConfigModule.forFeature(authConfig),
     //config env 
     ConfigModule.forRoot({
       isGlobal:true,
@@ -53,7 +57,12 @@ const N_ENV = process.env.NODE_ENV;
     })
   ],
   controllers: [AppController],  
-  providers: [AppService],
+  providers: [AppService,
+    // {                             // now it is globally authenticate with guard present
+    //   provide: APP_GUARD,
+    //   useClass: AuthorizeGuard
+    // }
+  ],
 })
 export class AppModule {}
                                 

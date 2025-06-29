@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { TweetEntity } from './tweet.entity';
@@ -63,9 +63,8 @@ export class TweetService {
 
     constructor( 
         @InjectRepository(TweetEntity) private tweetRepository:Repository<TweetEntity>,
-        @InjectRepository(UserEntity) private userRepository:Repository<UserEntity>,
-        @Inject() private readonly userService:UsersService,
-        @Inject() private readonly hashtagService:HashtagService,
+        @Inject( forwardRef(()=>UsersService)) private readonly userService:UsersService,
+        @Inject( forwardRef(()=>HashtagService)) private readonly hashtagService:HashtagService,
         @Inject() private readonly paginationProvider:PaginationProvider<TweetEntity>
     ){}
 
@@ -82,11 +81,7 @@ export class TweetService {
     public async createTweet( tweetBody:CreateTweetDto){
 
         // check if user exist or not 
-        const user = await this.userRepository.findOne({
-            where:{
-                id: tweetBody.userId
-            }
-        });
+        const user = await this.userService.findUserById(tweetBody.userId);
 
         if(!user){
             throw new  NotFoundException("User Not Found");

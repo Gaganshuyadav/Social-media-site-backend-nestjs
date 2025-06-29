@@ -6,14 +6,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
-import { ProfileEntity } from 'src/profile/profile.entity';
-import { ConfigService } from "@nestjs/config";
-import { appConfig } from 'src/config/app.config';
+// import { ConfigService } from "@nestjs/config";
+// import { appConfig } from 'src/config/app.config';
 import { UserAlreadyExistsException } from 'src/CustomExceptions/user-already-exists.exception';
 import { PaginationProvider } from 'src/common-for-all/pagination/pagination.provider';
 import { BcryptProvider } from 'src/provider/bcrypt.provider';
-import { SignUpUserDto } from 'src/auth/dto/signup-user.dto';
-import { profile } from 'console';
 
 export interface UserE {
     id: string
@@ -84,8 +81,7 @@ export class UsersService {
 
     constructor( 
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
-        @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
-        @Inject() private readonly configService: ConfigService,
+        // @Inject() private readonly configService: ConfigService,
         @Inject( forwardRef(()=>AuthService)) private readonly authService:AuthService,
         @Inject() private readonly paginationProvider:PaginationProvider<UserEntity>,
         @Inject() private readonly bcryptProvider:BcryptProvider
@@ -94,11 +90,11 @@ export class UsersService {
     public async getAllUsers() {
 
         //environment variables 
-        const eennvv = this.configService.get<string>("im");
-        console.log(eennvv);
-        console.log(this.configService.get<string>("ca"));
-        console.log(this.configService.get<string>("ENV_MODE"));
-        console.log(appConfig())
+        // const eennvv = this.configService.get<string>("im");
+        // console.log(eennvv);
+        // console.log(this.configService.get<string>("ca"));
+        // console.log(this.configService.get<string>("ENV_MODE"));
+        // console.log(appConfig())
 
         // get the profile table also with each user, ( we can also automatically get profile table if specifying in the user entity profile ( eager: true) )
         const findAllUsers = await this.userRepository.find({

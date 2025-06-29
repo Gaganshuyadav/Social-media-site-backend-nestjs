@@ -1,10 +1,12 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards, ValidationPipe } from "@nestjs/common";
 import { UserE, UsersService } from "./users.service";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { GetWithIsMarriedParamDto } from "./dtos/get-with-isMarried-param.dto";
 import { UpdateUserDTO } from "./dtos/update-user.dto";
 import { Response} from "express";
 import { PaginationQueryDto } from "src/tweet/dto/filter-pagination-tweet-dto";
+import { AuthorizeGuard } from "src/auth/guards/authorize.guard";
+// import { AuthorizeGuard } from "src/auth/guards/authorize.guard";
 
 @Controller("users")
 export class UsersController{
@@ -135,6 +137,7 @@ export class UsersController{
     */
 
 
+    // @UseGuards(AuthorizeGuard)
     @Get("/")
     public findAllUsers(){
         return this.usersService.getAllUsers();

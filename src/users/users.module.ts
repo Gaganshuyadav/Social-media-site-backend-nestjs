@@ -4,17 +4,19 @@ import { UsersService } from "./users.service";
 import { AuthModule } from "../auth/auth.module";
 import { UserEntity } from "./user.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ProfileEntity } from "src/profile/profile.entity";
-import { TweetEntity } from "src/tweet/tweet.entity";
 import { PaginationModule } from "src/common-for-all/pagination/pagination.module";
 import { BcryptProvider } from "src/provider/bcrypt.provider";
 import { HashingProvider } from "src/provider/hashing.provider";
+import { ConfigModule } from "@nestjs/config";
+import authConfig from "src/auth/config/auth.config";
+
 
 
 @Module({
   imports: [  
-    TypeOrmModule.forFeature([UserEntity, ProfileEntity, TweetEntity]), 
-    forwardRef(()=>AuthModule), 
+    TypeOrmModule.forFeature([UserEntity]), 
+    forwardRef(()=>AuthModule) , // required for auth guards
+    ConfigModule.forFeature(authConfig),
     PaginationModule
   ],    
   controllers: [ UsersController ],
@@ -31,6 +33,7 @@ import { HashingProvider } from "src/provider/hashing.provider";
 export class UserModule{
 
 }
+
 
 
 

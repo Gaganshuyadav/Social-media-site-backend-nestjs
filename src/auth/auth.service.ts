@@ -4,6 +4,9 @@ import { UsersService } from '../users/users.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { BcryptProvider } from 'src/provider/bcrypt.provider';
 import { SignUpUserDto } from './dto/signup-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import authConfig from './config/auth.config';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +57,11 @@ export class AuthService {
 
     constructor(
         @Inject(forwardRef(()=>UsersService)) private readonly userService:UsersService,
-        @Inject() private readonly bcryptProvider:BcryptProvider
+        @Inject() private readonly bcryptProvider:BcryptProvider,
+        private readonly jwtService:JwtService,
+        
+        
+        @Inject(authConfig.KEY) private readonly authConfiguration: ConfigType< typeof authConfig>
     ){}
 
 
@@ -89,8 +96,22 @@ export class AuthService {
             );
         }
 
+        // create jwt
+        const jwt = await this.jwtService.signAsync({
+            id: findUser.id,
+            user: {
+                id: findUser.id,
+                email: findUser.email,
+                username: findUser.username
+            }
+        },{ 
+            expiresIn: "5h"   // we can also give expires time specifically 
+        });
+
+
         return {
             message: "User Login Successfully",
+            token: jwt,
             user: findUser
         }
 

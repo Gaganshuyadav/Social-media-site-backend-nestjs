@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Inject, ParseIntPipe, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, ParseIntPipe, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response} from "express";
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignUpUserDto } from './dto/signup-user.dto';
+import { AuthorizeGuard } from './guards/authorize.guard';
 
 
 @Controller('auth')
@@ -44,6 +45,7 @@ export class AuthController {
         return this.authService.login( body);
     }
 
+    // @UseGuards(AuthorizeGuard)
     @Post("/sign-out")
     public logoutUser(@Body("userId", ParseIntPipe) userId:string ){
         return this.authService.logout(userId);
