@@ -1,0 +1,196 @@
+Spring Boot includes embedded servlet containers like Tomcat, Jetty, and Undertow. This lets your application run as a normal Java application on a computer, without needing a web application server.
+Spring Boot is widely used in industry by major companies like Netflix, Amazon, and Google.
+
+//--------------------------------------
+
+Maven:- is a build automation tool ( simplify build) and manage dependencies
+
+mvn validate
+mvn compile
+mvn project
+mvn test
+mvn clean
+
+//---------------------------------------------------------------------
+
+Apache Tomcat is a free, open-source web server and servlet container developed by the Apache Software Foundation, used to host Java-based web applications and implements Java Servlet and JavaServer Pages (JSP) specifications.
+Here's a more detailed explanation:
+
+What it is:
+Tomcat is a core component in the Java web development ecosystem, acting as a bridge between web servers and Java-based applications.
+Functionality:
+It receives HTTP requests, processes them using Java servlets and JSP, and sends back the response to the client.
+Key features:
+Open-source and free: Developed and maintained by the Apache Software Foundation.
+Servlet container: It implements the Java Servlet API, allowing developers to create dynamic web content using Java.
+JSP engine: It also supports JavaServer Pages (JSP), a technology for creating web pages with dynamic content.
+Lightweight and efficient: Tomcat is designed to be a lightweight and efficient solution for hosting Java web applications.
+Scalable and robust: It is known for its scalability and robustness, making it suitable for various web application deployments.
+Widely used: It's a popular choice for hosting Java web applications, with a large and active community supporting it.
+
+//---------------------------------------------------------------------
+
+A "jar" file, short for Java ARchive, is a file format used to package and distribute Java applications, libraries, or modules, containing compiled Java code, resources, and metadata, all compressed into a single file.
+Here's a more detailed explanation:
+Purpose:
+JAR files are designed to simplify the deployment and distribution of Java applications and libraries.
+
+
+//---------------------------------------------------------------------
+
+
+-- Spring( IOC CONTAINER( now we dont create object , we take it from spring, cause it contains IOC container(Inversion of Control) that have multiple objects.)
+-- A Spring IoC container manages one or more beans. These beans are created with the configuration metadata that you supply to the container, for example, in the form of XML <bean/> definitions.
+//-- An IoC (Inversion of Control) container is a framework component that manages object creation and dependency injection, allowing developers to build loosely coupled and maintainable applications.
+
+//-- In Spring, the IoC (Inversion of Control) container, often represented by the ApplicationContext, manages the lifecycle of application objects (called beans) and their dependencies, injecting them where needed, promoting loose coupling and making applications more flexible and maintainable.
+
+//-- (Application Context):- is a way to implement IOC container( IOC container is achieve by IOC container)
+
+//-- IOC container only contains special classes by scanning the full code, and it contains only those special classes that have annotation( Ex:- @Component, @Car etc. ) and we can write annotaions for class, interface, method, field
+
+//-- annotations are metadata tags that provide instructions to the compiler or runtime, simplifying configuration and development by allowing developers to manage dependencies, define components, and handle requests declaratively.
+
+//---------(Example:-)--------------
+
+//if you write @ component, then it will registered as bean
+
+@Component
+public class MyComponent{
+  //Class is automatically registered as a spring bean
+}
+
+//and after registering as a bean we can use it any time and anywhere , without creating it again
+
+//-----------------------
+
+Benefits of Using Annotations in Spring Boot:
+--Simplified Configuration:
+    Annotations reduce the need for extensive XML configuration, making applications easier to configure and maintain.
+--Declarative Programming:
+    They allow developers to define application behavior declaratively, rather than through imperative code.
+--Improved Readability:
+    Annotations enhance code readability and make it easier to understand how different parts of the application are connected.
+--Reduced Boilerplate:
+    They help reduce repetitive code and allow developers to focus on the core logic of their applications.
+--Faster Development:
+    Annotations streamline the development process, allowing developers to build applications more quickly and efficiently.
+
+//---(Beans)--------------------
+
+Beans:- In Spring, the objects that form the backbone of your application and that are managed by the Spring IoC container are called beans.
+        A bean is an object that is instantiated, assembled, and managed by a Spring IoC container. Otherwise, a bean is simply one of many objects in your application.
+        In Spring Boot, "beans" are simply Java objects managed by the Spring IoC (Inversion of Control) container, which handles their instantiation, configuration, and lifecycle.
+        They are the fundamental building blocks of a Spring application and represent various components like controllers, services, and repositories.
+
+//---( function of @SpringBootApplication)--------------------
+
+@Configuration :- Marks the class as a source of bean definitions for the application context, allowing you to define beans within the same class.
+@EnableAutoConfiguration :- Enables Spring Boot's automatic configuration mechanism, which configures beans and settings based on classpath dependencies and properties.
+@ComponentScan :- Tells Spring to scan for and register components (like controllers, services, etc.) in the package where the main application class is located, and its sub-packages ( dhund rhi hai beans ko, or @ ko IOC container main dal rhi hai).
+
+//----------
+ /*spring mujhe Dog ka object laaka da do ( it is called dependency injection means MyClass depends on Dog)*/
+   @Autowired
+   private Dog dog
+//----------
+
+
+//********************************************************************************
+ORM:- is a technique used to map java objects to databases tables. it allows developers to work with databases using object-oriented programming concepts, making it easier to interact with relational databases
+JPA:- is a way to achieve ORM, includes interfaces and annotations that you use in java classes, requires a persistence provider(ORM tools) for implementation.
+      Java Persistence API, is a specification for managing relational data in Java applications. It provides a standard interface for mapping Java objects to database tables, simplifying database interactions. JPA is part of Jakarta EE (formerly Java EE) and is not a tool or framework itself, but rather defines concepts for persistence.
+
+      To use JPA, you need a persistence provider. A persistence provider is a specific implementation of the JPA persistence providers include Hibernate, EclipseLink, and OpenJPA. these providers implement the JPA interfaces and provide the underlying functionality to interact with databases.
+
+Spring JPA :- Spring Data JPA is a build on top of the JPA(java persistence api) specification, but it is not a JPA implementation itself. instead, it simplifies working with JPA by providing higher-level abstractions and utilities.
+              However, to use spring Data JPA effectively, you still need a JPA implementation, such as Hibernate, EclipseLink, or another JPA-compliant provider, to handle the actual database interactions.
+
+///----But in case of MongoDB which is nosql db, you don't need JPA
+In case of MongoDB, you don't have a traditional JPA persistence provider. MongoDB is a NoSQL database, and Spring Data MongoDB serves as tha "persistence provider" for MongoDB. it provides the necessary abstractions and implementations to work with mongodb in a spring application.
+
+//-- Query Method DSL (Domain Specific Language) and Criteria API :- are two different ways to interact with a database when using spring data JPA for relational databases and  Spring data mongodb for mongodb databases.
+//-- Spring data JPA is a part of the Spring framework that simplifies data access in java applications, while spring data mongodb provides similar functionality for mongodb.
+
+Query Method DSL (Domain Specific Language):- is a simple and convenient way to create queries based on method naming conventions.
+Criteria API:- offers a more dynamic and programmatic approach for building complex and custom queries.
+
+
+//**************( Response Entity)******************************************************************
+
+The ResponseEntity class is part of the spring framework and is commonly used in spring boot applications to customize the HTTP response.
+it provides methods for setting the response status, headers, and body. you can use it to return different types of data in your controller methods, such as JSON, XML, or even HTML.
+
+/*****************( Lombok)****************************************************************
+
+Lombok :- is a Java library that helps developers reduce boilerplate code by automatically generating common Java code during compile time.
+          It achieves this by using annotations, allowing developers to write less code and focus on application logic. For example, Lombok can generate getters, setters, constructors, toString(), equals(), and hashCode() methods with just a few annotations.
+          Lombok provides annotations that can be added to Java classes to automatically generate this boilerplate code during the compilation phase.
+          Benefits:- Reduced Boilerplate, Concise Code, Improved Maintainability. Error Reduction
+
+/*****************( @Transactional )****************************************************************
+
+sometimes we needed to use @Bean for Custom Initialization: If you need to perform custom initialization or configuration logic that cannot be easily achieved with annotations, you can define a bean method with the necessary logic.
+Ex:- @EnableTransactionManagement
+@Bean
+	public PlatformTransactionManager add(MongoDatabaseFactory dbFactory){
+		return new MongoTransactionManager( dbFactory);
+	}
+
+---- in mongodb, replication is mandatory for transactional to happen( but local contains single instance)
+so we need to use mongo atlas for that, so that we rollback it
+
+
+//**************( Spring Security )******************************************************************
+at start, spring-boot-starter-security framework automatically give password in console
+
+
+methods:-
+  (i) http.authorizeRequest() :- this tells spring security to start authorizing the requests.
+  (ii) .requestMatchers("/hello").permitAll :- this part specifies that HTTP requests matching the path /hello should be permitted(allowed) for all users, whether they are authenticated or not.
+  (iii) .anyRequest().authenticated() :- this is a more general matcher that specifies any request ( not already matched by previous matchers) should be authenticated,  meaning users have to provide valid credentials to access these endpoints.
+  (iv) .and() :- this is a method to join several configurations. it helps to continue the configuration from the root(HTTP Security)
+  (v). formLogin() :- this enables form-based authentication. By default, it will provide a form for the user to enter their username and password. if the user is not authenticated and they try to access a secured endpoints, they'll be redirected to the default login form.
+
+session:-
+  session creation, session cookie, security context, session timeout, logout, remember-me
+
+ // we can make our functions and query method derivation to automatically generate MongoDB queries based on method names.
+ // like:-  User findByUserName(String username) , User deleteByUserName(String username)
+
+
+//**************( Logging  )******************************************************************
+spring boot supports various logging frameworks, such as Logback(default), Log4j2(logging framework with features such as asynchronous logging and support for various output formats), and java Util Logging ( JUL)( part of java platform)
+
+/*(i). create logger instance*/
+    //logging in spring boot
+    private static final Logger logger = LoggerFactory.getLogger(JournalEntryService.class);
+
+/*(ii). using @Slf4j with log */
+
+/* info, error, warn are enabled , but debug and trace are not enabled , so we need to enable it  with application.properties or application.yaml */
+
+/* logging levels:- ERROR->WARN->INFO->DEBUG->TRACE*/
+
+/* logging levels help in categorizing log statements based on their severity common logging levels are ( ERROR=>WARN=>INFO=>DEBUG=>TRACE)*/
+logging:
+  level:
+    com:
+      gagansp1:
+        myfirstsringboot: TRACE
+
+
+/* to stop every log*/
+logging:
+  level:
+    root: OFF
+
+/* to stop serive logs*/
+logging:
+  level:
+    com:
+      gagansp1:
+        myfirstsringboot: OFF
+
+
+
