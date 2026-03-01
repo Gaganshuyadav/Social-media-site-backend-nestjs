@@ -1,6 +1,8 @@
-import { Body, Controller, Delete, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { HashtagService } from './hashtag.service';
 import { CreateHashtagDto } from './dto/create-hashtag-dto';
+import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
+import { AuthorizeGuard } from 'src/auth/guards/authorize.guard';
 
 @Controller('hashtags')
 export class HashtagController {
@@ -10,6 +12,13 @@ export class HashtagController {
     @Post("/create")
     public async createNewHashtag(@Body() body:CreateHashtagDto){
         return this.hashtagService.createHashtag(body);
+    }
+
+    @UseGuards(AuthorizeGuard)
+    @Get("/") 
+    public async getAllHashtags( @ActiveUser("email") user){
+        console.log("user:-----  ",user);
+        return this.hashtagService.getAllHashtags();
     }
 
 

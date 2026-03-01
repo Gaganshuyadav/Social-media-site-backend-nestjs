@@ -1,0 +1,411 @@
+// firstly install nestjs cli globally
+npm install -g @nestjs/cli
+npm install -g @nestjs/cli@latest
+
+nest new nestjs-grpc
+
+nest --help( to see commands)
+nest generate controller  auth
+nest generate service  auth  --no-spec
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+// (1). create new project with ( nest new [projectname] ) 
+// (2). Modules:- Modules are the fundamental building-block of Next JS application that encapsulate related controllers, services, providers and other components. They promote code organization, reusability and testability.
+// (3). Modularity:- Modules break down the application into smaller, self-contained units, making it easier to manage and understand.
+// (4). Dependency Injection( instead of a class creating its own dependencies, they are provided from the outside(injected))( pass dependencies to other class):- NestJs uses dependency injection to provide the modules with necessary dependencies, promoting loose coupling and testability.
+// (5). Providers:- Providers can be services, controllers, or other classes that are managed by the module.
+// (6). Exports:- Modules can export providers and other components that can be used by other modules.
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Controller :- handles incoming HTTP requests and routes them to appropriate handler.
+Service :- Contains the business logic for the module, Handles data access, calculation and other core functions.
+Entity :- Defines the structure of database entities, Used when interacting with database like TypeORM.
+Test File:- contains the unit test for the controller to ensure its functionality.
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+(Pipes):- Pipes in Nestjs are functions that transform a validate data before it reaches a controller method.
+
+Pipes are used to clean, sanitize, or convert data to a specific format, ensuring that the data received by the controller is in a suitable state for further processing.
+
+Pipes are used for:- 
+
+(i). Data Validation (ensuring inputs match expected rules such as data types, length, formats. and this help to prevent errors and improves data quality)(class-validator).
+(ii). Data Transformation (changing inputs into desired formats. such as parse string JSON, convert data types, format dates )(class-transformer).
+(iii). Data Sanitization (cleaning inputs to remove dangerous or unwanted content such as HTML tags, malicious scripts. this helps to protect your application from security vulnerabilities )(class-sanitizer).
+
+(Custom Pipes)
+(DTO)(data transfer object):- it is design pattern used to encapsulate data and transfer it between different layers of an application.
+                              it is a simple class that is used to represent data that is being transfered between different layers of an application, such as the controllers, service and repository.
+                              DTOs are often used to decouple the different layers of the application and to make the code more readable and maintainable.
+
+( useGlobalPipes):-  is a method used to apply pipes globally across the entire application. Pipes are a feature in NestJS that allow for data transformation and validation of incoming requests. When a pipe is applied globally, it automatically applies to every route handler in the application
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//----( create and update of user body is same but in update any value can be optional)---------------------------------------------------------------------------------------------------------------------------------------------------------------
+use @nestjs/mapped for taking the PartialType  ( so that DRY( Don't Repeat Yourself) not violate )
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Dependency Injection:- Dependency Injection is a software design pattern that involves passing dependencies( object or services) into an object rather than the object creating them itself. 
+                       this promotes loose coupling, making the code more modular, testable, and maintainable.
+            
+            why Use Dependency Injection in NestJS  
+            (i). Modularity:- DI encourages breaking down applications into smaller, reusable modules, improving code organization and maintainability. 
+            (ii). Testability:- By injecting dependencies , you can easily mock or stub them during testing, isolating the component under test and simplifying testing procedures.
+            (iii). Reusability:- DI allows you to reuse components across different parts of your application, promoting code efficiency and reducing redundancy( repeat same code).
+            (iv). Maintainability:- DI make it easier to modify and extend your application without affecting existing code.
+            (v). Configurability :- DI enables you to configure dependencies dynamically, allowing for customization and flexibility.
+
+( Types of Dependency Injection):- 
+
+    1. Intra-modular Dependency Injection:- Intra-module Dependency Injection refers to injecting one provider (class/service) into another within the same module.
+        ( Example:- inject user Service to the user controller )
+
+    2. Inter-modular Dependency Injection:- Inter-module Dependency injection is when a provider(class/service ) from one module is injected into another module using exports and imports.
+        ( An inter-modular dependency occurs when a component in one module (depends on)( injected into) a component in another module).
+        ( Example:- user and tweet models)
+
+    3. Circular Dependency Injection:- when two or more modules or components have a direct or indirect depencdency on each other, forming a cycle.
+        ( Problem: This can cause runtime errors or undefined injections unless handled carefully. )
+        ( forwardRef tells NestJS to resolve the dependency later, breaking the circular chain)
+        ( Ex:- auth and user) ( both are passing their sevices)
+        
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//----( difference between [ synchronize:true and synchronize:false] )---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+Question:- assume have columns and new model have code that have 2 more columns and  1 column removed that have a data , now explain both synchronize true/false scnerio on that and  what effects also on data. 
+
+ChatGPT said:
+Perfect — now let’s go deep into your case with a clear scenario using synchronize: true vs false.
+
+🎯 Situation:
+You already have a database table User with these columns:
+
+ts
+Copy
+Edit
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  email: string;
+}
+And your database already has this data:
+
+id	name	email
+1	Alice	alice@example.com
+2	Bob	bob@example.com
+
+Now, you change your model in code like this:
+
+ts
+Copy
+Edit
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  age: number;             // ✅ New column
+
+  @Column()
+  isActive: boolean;       // ✅ New column
+
+  // ❌ Removed the "email" column
+}
+🔁 Now see both scenarios:
+✅ Scenario 1: synchronize: true
+NestJS/TypeORM sees your updated model and says:
+
+"Oh! There are 2 new columns and 1 old column is gone. Let me fix the database automatically."
+
+What happens:
+Adds age and isActive columns → ✅ OK
+
+Drops email column → ❌ Deletes that column and all its data
+
+Now your table looks like:
+
+id	name	age	isActive
+1	Alice	NULL	NULL
+2	Bob	NULL	NULL
+
+🔴 All email data is lost forever, because synchronize blindly dropped the column.
+
+🚫 Scenario 2: synchronize: false
+TypeORM does nothing to the table.
+
+What happens:
+age and isActive are not created
+
+email is not deleted
+
+Database stays exactly like this:
+
+id	name	email
+1	Alice	alice@example.com
+2	Bob	bob@example.com
+
+But now when your application tries to save a user, or fetch age/isActive, you might get:
+
+Errors like “column doesn’t exist”
+
+Inconsistencies between code and database
+
+✅ Good thing: No data is lost
+❌ Bad thing: You need to manually create migrations or SQL to update schema.
+
+🧠 Summary:
+Action	               synchronize: true	             synchronize: false
+Adds new columns	   ✅ Automatically	               ❌ You do it manually
+Removes old columns	   ✅ Automatically (dangerous) 	   ❌ You do it manually
+Deletes column data	   ❌ YES (irreversible loss)	   ✅ NO data loss
+Best for	           Development                   	 Production
+
+📌 Best Practice:
+(i). Use synchronize: true in local dev only when you're okay losing data.
+
+(ii). Use synchronize: false + migrations in production to:
+      --Keep control
+      --Protect data
+      --Review every change
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+( SYNCHRONOUS CONNECTION):- 
+    -- synchronous connection establishes a direct, immediate link between your application and the database.
+    -- when your code requests data, the execution halts until the database responds.
+    -- this blocking behaviour can impact application performance, especially with time-consuming queries.
+
+( ASYNCHRONOUS CONNECTION):- 
+    -- asynchronous connection utilize promises or async/await.
+    -- your code can continue executing other tasks while the database query is running in the background.
+    -- this improves application reponsiveness and prevents blocking.
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//-----( Repository Pattern ) --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+the Repository Pattern is a design pattern that acts as an intermediate between your business logic and the ORM. 
+it provides an abstraction layer for accessing and manipulating data in the database.
+
+|Entity| ----> |Repository| ----> |Service| 
+
+TypeORM is responsible for creating a repository from an entity.
+TypeORM is responsible for injecting repository to a service.
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-------( relationships )----------------------------------------------------------------------------------------------------------------
+
+one-to-one :-( in this relationship we need to specify the @JoinColumn to use foreign key , cause it generates the userId)
+
+one-to-many :- ( here we don't need to write @JoinColumn cause ManyToOne relation automatically create userId)
+
+many-to-many :- ( if we update the hashtags in array , the hashtags which present before are automatically deleted and the new hashtags are added, and also if tweet deleted then the hashtags related to that tweet are also deleted by default without specifically define cascade )
+                ( and also if we delete the hashtag then it also delete the tweet-hashtag junction row where the hashtag is present by default)
+
+CASCADING :- cascading in TypeORM( used often with NestJS) is a feature that automatically performs related operations( like saving, updating, or deleting) on associated entities when you perform those operations on the parent entity.
+
+EAGER LOADING:-  Eager loading is a TypeORM means that when you fetch an entity from the database, its related entities( defined in relationships such as @OneToMany, @ManyToOne, @ManyToMany, etc. ) are automatically loaded alongside it-without you having to explicitly specify it in your query.
+
+Soft-Delete:-    deletedAt value is initialized with time value, and we can use this value to show hashtags in UI on basis on time condition.
+                 Soft delete is a technique used in databases where, instead of permanently removing a record, you mark it as deleted (for example, by setting a deletedAt timestamp or an isDeleted flag). The record remains in the database and can be restored later if needed.
+                 Benefits:-
+                   Allows recovery of accidentally deleted data.
+                   Maintains historical data for auditing.
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-------( Custom Configuration File )----------------------------------------------------------------------------------------------------------------
+
+In Nestjs, a custom configuration file allows you to define and manage application settings beyond simple environment variables. it's way to organize complex configurations into structured data, making them more manageable and maintainable. 
+-- You can use it to define configurations that are more complex than simple key-value pairs, such as nested objects, arrays, or functions.
+-- These configurations can then be loaded and accessed using the @nestjs/config module.
+
+( registerAs):- registerAs('database', () => ({ ... })) lets you group related config under a namespace (e.g., database).
+                You can then access it with configService.get('database.host').
+                Avoids key collisions( to avoid multiple names in env):- Namespacing prevents conflicts if you have multiple configs (e.g., database, mail, auth).
+
+//-------( Partial Registration )----------------------------------------------------------------------------------------------------------------
+
+ENV variable is written for specific module and then @Inject() in that in service
+  import in module:-       ConfigModule.forFeature(profileConfig)
+  inject the profileconfig in profile service:-      @Inject(profileConfig.KEY) private readonly profileConfiguration: ConfigType<typeof profileConfig> 
+
+ 
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-------( Exception Handling )----------------------------------------------------------------------------------------------------------------
+
+An "exception" represents an error condition that disrupts the normal flow of program execution.
+
+( Http Exception):- In Nestjs, HttpException is a fundamental class for handling HTTP errors and providing standardized error responses. 
+                    it allows you to throw exceptions that Nestjs automatically translates into Http responses with appropriate status codes and error messages.
+                    Using generic HttpException provides flexibility in handling various error scenarios.
+
+( Creating a Custom Exception Class)
+
+
+ 
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-------( RESPONSE FOR PAGINATION  )----------------------------------------------------------------------------------------------------------------
+
+Pagination is a technique used in software development to divide large sets of data into smaller, manageable chunks (pages). Instead of loading all records at once, pagination allows users to view data page by page, improving performance and user experience. 
+Common pagination parameters include the current page number and the number of items per page.
+
+Ex:- pagination response example:- 
+{
+  data: [/* array of tweet items for the current page */],
+  meta: {
+    itemPerPage: 10,
+    totalItems: 1000,
+    currentPage: 3,
+    totalPages: 100
+  },
+  links: {
+    first: 'http://localhost:3000/tweets?limit=10&page=1',
+    last: 'http://localhost:3000/tweets?limit=10&page=100',
+    current: 'http://localhost:3000/tweets?limit=10&page=3',
+    next: 'http://localhost:3000/tweets?limit=10&page=4',
+    previous: 'http://localhost:3000/tweets?limit=10&page=2'
+  }
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-------( Abstract Class and methods in NestJs  )----------------------------------------------------------------------------------------------------------------
+
+(Abstract Class):- An abstract class is a class that cannot be instantiated( you can't create an object directly from it ). 
+                  it's designed to be a base class that other classes can inherit from. 
+                  Abstract classes can contain both abstract methods (methods without implementation) and concrete methods (methods with implementation).
+
+( Abstract Methods):- a method declared in an abstract class or interface without any implementation (i.e., no method body). 
+                      It serves as a placeholder or contract that forces subclasses to provide their own specific implementation. 
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//jwt
+
+//-------( Guard in NestJs  )----------------------------------------------------------------------------------------------------------------
+
+A guard in Nestjs is a class annotated with the @Injectable() decorator that implements the CanActive interface. its primary purpose is to determine whether a given request should be handled by the route handler.
+    -- the most common use case is to check if the user making the request has the required roles or permissions to access a specific resource or execute a particular action.
+
+// (i). for specific module
+
+@UseGuards(AuthorizeGuard)
+
+
+//(ii). it applies auth guards globally
+
+{
+  provide: APP_GUARD,
+  useClass: AuthorizeGuard
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//---------( Decorator )----------------------------------------------------------------------------------------------------------------------------------
+
+Decorators are a powerful syntactic feature in Typescript that allows you to add functionality or modify the behaviour of a class, method, property or a method parameter at runtime.
+Decorators are essentially fucntions that are applied using @ Symbol before the declaration you want to declare.
+ 
+//----------( SET METADATA DECORATOR)
+
+the @SetMetadata(key,value) decorator is a build-in Nestjs decorator that allows you to associate arbitrary metadata with a specific handler or controller.
+key: This is a string that serves as the identifier for your metadata.
+value: This can be any js value - string, boolean, object, array.
+You can apply @SetMetadata directly to a route handler ( within a controller method) or to an entire controller.
+
+
+the Reflector is a helper class used to access metadata that has been set using decorators like @SetMetadata. 
+It is particularly useful in custom guards, interceptors, roles access and other places where you want to read metadata at runtime.
+     
+@HttpCode(HttpStatus.OK) //for status response // but if error occurs, this will not set as status, the error status response will be preferred
+
+//----------( createParamDecorator)
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//----------( Refresh Token) 
+
+Refresh Tokens are tokens that you re-generate across tokens automatically. the sole purpose of refresh tokens is to generate fresh access tokens. ( refresh token have less payload and higher expiration time)
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//----------( Interceptor) 
+
+-- intercept before and after method execution, allowing modification of both request and response
+-- transform req and res ( pre and post processing).
+-- Inject Services
+-- Access Nestjs Context
+-- Access Dependency Injection
+
+Usecases:-
+-- execution Time logging
+-- output filtering
+-- error mapping
+-- response caching( e.g. Redis)
+-- Timeout Enforcement ( set max limit on method execution)
+-- response transformation
+-- logging inputs and outputs
+-- serialization (  
+              Convert class instances into plain objects using decorators.( Serialization is the process of converting a class instance (with methods, private fields, etc.) into a plain JavaScript object that can be safely returned as JSON — usually in API responses.) , 
+              technique:- @UseInterceptors(ClassSerializerInterceptor), @Expose(), @Exclude() 
+            )
+     
+//----------( difference between middleware and Interceptor) 
+
+-- middleware runs before reaching controllers or route handler
+-- can end req-res cycle early.
+

@@ -83,10 +83,11 @@ export class UsersService {
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
         // @Inject() private readonly configService: ConfigService,
         @Inject( forwardRef(()=>AuthService)) private readonly authService:AuthService,
-        @Inject() private readonly paginationProvider:PaginationProvider<UserEntity>,
+        // @Inject() private readonly paginationProvider:PaginationProvider<UserEntity>,
         @Inject() private readonly bcryptProvider:BcryptProvider
     ) { }
 
+    
     public async getAllUsers() {
 
         //environment variables 
@@ -135,8 +136,6 @@ export class UsersService {
         const userSaved = await this.userRepository.save(user);
 
         // ( we can also do manually by create profile first and then save and then give profile to body of user and then save the new user, but cascade is easier way it automatically creates the profile and object is empty)
-
-
 
         return user;
 
@@ -206,14 +205,16 @@ export class UsersService {
         }
 
 
-        return this.paginationProvider.Pagination( 
-            { limit: limitQ, page: pageQ}, 
-            this.userRepository, 
-            {
-                where: whereOption,
-                relations: relationOption,
-            }
-        );
+        // return this.paginationProvider.Pagination( 
+        //     { limit: limitQ, page: pageQ}, 
+        //     this.userRepository, 
+        //     {
+        //         where: whereOption,
+        //         relations: relationOption,
+        //     }
+        // );
+        
+        return true;
 
     }
 
@@ -398,7 +399,9 @@ export class UsersService {
             );
         }
 
+
         */
+
 
         /*(iv). Creating a Custom Exception Class */
 
@@ -409,7 +412,6 @@ export class UsersService {
         if(user){
             throw new UserAlreadyExistsException( "id", id);
         }
-
         
 }
 

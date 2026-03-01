@@ -6,3 +6,13 @@ import { PaginationProvider } from './pagination.provider';
   exports: [ PaginationProvider]
 })
 export class PaginationModule {}
+
+
+
+
+
+
+
+
+
+

@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 
 
 export class SignUpUserDto{
 
-    @IsString({ message: "UserName should be a string value"})
+        @IsString({ message: "UserName should be a string value"})
         @MinLength(3,{ message:"UserName should have a minimum of 3 characters."})
         @MaxLength(100)     
         @IsNotEmpty()

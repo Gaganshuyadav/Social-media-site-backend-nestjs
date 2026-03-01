@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { TweetService } from './tweet.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateTweetDto } from './dto/create-tweet-dto';
 import { UpdateTweetDto } from './dto/update-tweet-dto';
 import { PaginationQueryDto, PaginationQueryWithBaseAndDate } from './dto/filter-pagination-tweet-dto';
+import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
+import { ActiveUserType } from 'src/auth/interfaces/active-user.type.interface';
+import { AuthorizeGuard } from 'src/auth/guards/authorize.guard';
 
 @Controller('tweets')
 export class TweetController {
@@ -24,10 +27,11 @@ export class TweetController {
  
     constructor(private readonly tweetService:TweetService){}
 
+    @UseGuards(AuthorizeGuard)
     @Post("/create")
-    public createNewTweet(@Body() body:CreateTweetDto){
+    public createNewTweet(@Body() body:CreateTweetDto, @ActiveUser() user:ActiveUserType){
 
-        return this.tweetService.createTweet(body);
+        return this.tweetService.createTweet(body, user);
 
     }
 

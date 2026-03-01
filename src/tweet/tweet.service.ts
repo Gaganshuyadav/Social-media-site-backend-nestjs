@@ -9,6 +9,7 @@ import { HashtagService } from 'src/hashtag/hashtag.service';
 import { HashtagEntity } from 'src/hashtag/hashtag.entity';
 import { UpdateTweetDto } from './dto/update-tweet-dto';
 import { PaginationProvider } from 'src/common-for-all/pagination/pagination.provider';
+import { ActiveUserType } from 'src/auth/interfaces/active-user.type.interface';
 
 /* l-p */
 /*
@@ -65,7 +66,7 @@ export class TweetService {
         @InjectRepository(TweetEntity) private tweetRepository:Repository<TweetEntity>,
         @Inject( forwardRef(()=>UsersService)) private readonly userService:UsersService,
         @Inject( forwardRef(()=>HashtagService)) private readonly hashtagService:HashtagService,
-        @Inject() private readonly paginationProvider:PaginationProvider<TweetEntity>
+        // @Inject() private readonly paginationProvider:PaginationProvider<TweetEntity>
     ){}
 
     public async getAllTweets(){
@@ -78,10 +79,9 @@ export class TweetService {
         });
     }
 
-    public async createTweet( tweetBody:CreateTweetDto){
+    public async createTweet( tweetBody:CreateTweetDto, user:ActiveUserType){
 
         // check if user exist or not 
-        const user = await this.userService.findUserById(tweetBody.userId);
 
         if(!user){
             throw new  NotFoundException("User Not Found");
@@ -92,13 +92,16 @@ export class TweetService {
         if( tweetBody?.hashtags && tweetBody.hashtags.length > 0 ){
             hashtagsA = await this.hashtagService.findAllHashTagsWithHashTagsID(tweetBody.hashtags);
         }
+
+        if( hashtagsA.length!==tweetBody.hashtags?.length){
+            return new BadRequestException();
+        }
         
 
 
         //create new tweet
-        const { userId, ...newTweetBody } = { ...tweetBody};
         
-        const tweet = this.tweetRepository.create({ ...newTweetBody, user:user, hashtags:hashtagsA });
+        const tweet = this.tweetRepository.create({ ...tweetBody, user:user, hashtags:hashtagsA });
 
         //save
         await this.tweetRepository.save(tweet);
@@ -219,15 +222,17 @@ export class TweetService {
         }
 
 
-        return this.paginationProvider.Pagination( 
-            { limit: limitQ, page: pageQ}, 
-            this.tweetRepository, 
-            {
-                where: whereOption,
-                relations: relationOption,
-                countWhere: countWhereOption
-            }
-        );
+        // return this.paginationProvider.Pagination( 
+        //     { limit: limitQ, page: pageQ}, 
+        //     this.tweetRepository, 
+        //     {
+        //         where: whereOption,
+        //         relations: relationOption,
+        //         countWhere: countWhereOption
+        //     }
+        // );
+
+        return true;
 
     }
     

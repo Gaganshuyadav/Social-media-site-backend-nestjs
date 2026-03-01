@@ -37,7 +37,7 @@ const N_ENV = process.env.NODE_ENV;
       load:[ appConfig, databaseConfig],
       validationSchema: envValidation
     }),
-    // ORM  
+    // ORM 
     TypeOrmModule.forRootAsync({ 
       imports:[ ConfigModule],   // -- Import ConfigModule
       inject:[ ConfigService],    // -- Inject ConfigService

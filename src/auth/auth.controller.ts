@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Inject, ParseIntPipe, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, ParseIntPipe, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response} from "express";
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignUpUserDto } from './dto/signup-user.dto';
 import { AuthorizeGuard } from './guards/authorize.guard';
+import { AllowAnonymous, Roles } from './decorators/allow-anonymous.decorator';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 
 @Controller('auth')
@@ -35,13 +37,23 @@ export class AuthController {
 
     @Post("/sign-up")
     public createNewUser(@Body() body:SignUpUserDto){
-
         return this.authService.signup(body);
     }
 
+    @AllowAnonymous()
+    @Post("/refresh-token")
+    @HttpCode(HttpStatus.OK)
+    public refreshToken( @Body() body:RefreshTokenDto){
+        return this.authService.refreshToken( body);
+    }
 
+
+    @AllowAnonymous()
+    @Roles("all")
+    @UseGuards(AuthorizeGuard)
     @Post("/login")
-    public loginUser(@Body() body:LoginUserDto ){
+    @HttpCode(HttpStatus.OK)
+    public loginUser(@Body() body:LoginUserDto ){                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
         return this.authService.login( body);
     }
 

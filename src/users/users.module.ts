@@ -7,8 +7,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { PaginationModule } from "src/common-for-all/pagination/pagination.module";
 import { BcryptProvider } from "src/provider/bcrypt.provider";
 import { HashingProvider } from "src/provider/hashing.provider";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import authConfig from "src/auth/config/auth.config";
+import { JwtModule } from "@nestjs/jwt";
+import { AuthorizeGuard } from "src/auth/guards/authorize.guard";
+import { APP_GUARD } from "@nestjs/core";
 
 
 
@@ -17,7 +20,7 @@ import authConfig from "src/auth/config/auth.config";
     TypeOrmModule.forFeature([UserEntity]), 
     forwardRef(()=>AuthModule) , // required for auth guards
     ConfigModule.forFeature(authConfig),
-    PaginationModule
+    // PaginationModule
   ],    
   controllers: [ UsersController ],
   providers: [
@@ -26,7 +29,13 @@ import authConfig from "src/auth/config/auth.config";
     {
       provide: HashingProvider,
       useClass: BcryptProvider 
-    }
+    },
+    
+    //it applies auth guards globally
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthorizeGuard
+    // }
    ],
   exports: [ UsersService]
 })

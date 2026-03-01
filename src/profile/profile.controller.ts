@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Req, UseGuards } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { AuthorizeGuard } from 'src/auth/guards/authorize.guard';
 
@@ -9,7 +9,10 @@ export class ProfileController {
 
     @UseGuards(AuthorizeGuard)
     @Get("/")
-    public findAllProfiles(){
+    public findAllProfiles(@Req() request){
+
+         console.log("user in request after auth check : ",request.user);
+
         return this.profileService.getAllProfiles();
     }
 

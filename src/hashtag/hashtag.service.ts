@@ -67,4 +67,9 @@ export class HashtagService {
         return { message:"Hashtag Soft deleted successfully"};
     }
 
+    public async getAllHashtags( ){
+
+        return this.hashtagRepository.find();
+    }
+
 }

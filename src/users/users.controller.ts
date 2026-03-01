@@ -143,10 +143,15 @@ export class UsersController{
         return this.usersService.getAllUsers();
     }
 
+    // @UseGuards(AuthorizeGuard)
+    @Get("/:id")
+    public findUserById( @Param("id") id:number|string){
+        return this.usersService.findUserById( id);
+    }
+
 
     @Delete("/:id")
     public deleteUserById( @Param("id") id:string){
-        
         return this.usersService.deleteUserById__AlongWithAllProfiles( Number(id) );
     }
 

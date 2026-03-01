@@ -1,4 +1,4 @@
-import { forwardRef, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Response} from "express";
 import { UsersService } from '../users/users.service';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -7,6 +7,10 @@ import { SignUpUserDto } from './dto/signup-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import authConfig from './config/auth.config';
+import { AllowAnonymous } from './decorators/allow-anonymous.decorator';
+import { AuthorizeGuard } from './guards/authorize.guard';
+import { UserEntity } from 'src/users/user.entity';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -96,24 +100,8 @@ export class AuthService {
             );
         }
 
-        // create jwt
-        const jwt = await this.jwtService.signAsync({
-            id: findUser.id,
-            user: {
-                id: findUser.id,
-                email: findUser.email,
-                username: findUser.username
-            }
-        },{ 
-            expiresIn: "5h"   // we can also give expires time specifically 
-        });
-
-
-        return {
-            message: "User Login Successfully",
-            token: jwt,
-            user: findUser
-        }
+        // create access and refresh token
+        return this.generateTokens( findUser);
 
     }
 
@@ -129,6 +117,75 @@ export class AuthService {
         }
 
     }
+
+    public async refreshToken( refreshTokenDto:RefreshTokenDto){
+        
+        try{
+
+            //check if refresh token is valid 
+            const { id} = await this.jwtService.verify( refreshTokenDto.refreshToken);
+
+
+            //find user 
+            const user = await this.userService.findUserById( id);
+
+            if(!user){
+                return new HttpException(
+                    { error: "User Not Found" },
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            //generate tokens
+            return this.generateTokens( user);
+
+        }
+        catch(error){
+            throw new UnauthorizedException(error);
+        }
+    }
+
+
+    public async generateTokens( user:UserEntity){
+
+        //create refresh token
+        const refreshToken = await this.signToken( 
+            user.id, 
+            this.authConfiguration.jwtExpiresIn
+        );
+
+        //create access token
+        const accessToken = await this.signToken( 
+            user.id, 
+            this.authConfiguration.refreshTokenExpiresIn, 
+            { user: { id: user.id, email: user.email, username: user.username } }
+        );
+
+        return {
+            message: "User Login Successfully",
+            accessToken,
+            refreshToken,
+            user
+        }
+    }
+
+
+
+    public async signToken<T>( userId:number, expiresIn:string, payload?:T){
+
+        const token = await this.jwtService.signAsync({           
+            id: userId,
+            ...payload
+        },{
+            expiresIn // we can also give expiresIn time specifically , and it overrides the default expiresIn
+        });
+
+        return token;
+
+    }
+
+
+
 
 
 
